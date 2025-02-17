@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
   <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
-  <title>Document</title>
+  <title>Documento</title>
 </head>
 
 <body>
@@ -14,41 +14,39 @@
     let video;
     let hands = [];
 
-    // A variable to track a pinch between thumb and index
+    // Variable para rastrear dedos
     let pinch = 0;
 
     function preload() {
-      // Load the handPose model
+      // Modelo de detección de dedos
       handPose = ml5.handPose();
     }
 
     function setup() {
       createCanvas(640, 480);
-      // Create the webcam video and hide it
+      // Crear el video camara
       video = createCapture(VIDEO);
       video.size(640, 480);
       video.hide();
-      // Start detecting hands from the webcam video
+      // Iniciar la detección de manos
       handPose.detectStart(video, gotHands);
     }
 
     function draw() {
-      // Draw the webcam video
+      // Mostrar el video de la cámara
       image(video, 0, 0, width, height);
 
-      // If there is at least one hand
+      // Menos una mano
       if (hands.length > 0) {
-        // Find the index finger tip and thumb tip
+        // Encontrar la punta del dedo
         let finger = hands[0].index_finger_tip;
         let thumb = hands[0].thumb_tip;
 
-        // Draw circles at finger positions
         let centerX = (finger.x + thumb.x) / 2;
         let centerY = (finger.y + thumb.y) / 2;
-        // Calcular la distancia (pinch) de pellizco entre el dedo y el pulgar
+
         let pinch = dist(finger.x, finger.y, thumb.x, thumb.y);
 
-        // This circle's size is controlled by a "pinch" gesture
         if (pinch > 200) {
           fill(255, 255, 0, 150);
           stroke(0);
@@ -66,14 +64,11 @@
           circle(centerX, centerY, pinch);
         }
 
-        
         console.log(pinch)
       }
     }
 
-    // Callback function for when handPose outputs data
     function gotHands(results) {
-      // Save the output to the hands variable
       hands = results;
     }
   </script>
