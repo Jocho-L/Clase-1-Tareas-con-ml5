@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teachable Machine Image Model - p5.js and ml5.js</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <script src="https://unpkg.com/ml5@0.12/dist/ml5.min.js"></script>
+  
+  <script type="text/javascript">
+    let classifier;
+    let imageModelURL = './model/';
+    let video;
+    let flippedVideo;
+    let results = [];
+
+    function preload() {
+      classifier = ml5.imageClassifier(imageModelURL + 'model.json');
+    }
+
+    function setup() {
+      let canvas = createCanvas(320, 240);
+      canvas.parent('canvas-container');
+      video = createCapture(VIDEO);
+      video.size(320, 240);
+      video.hide();
+      flippedVideo = ml5.flipImage(video);
+      classifyVideo();
+    }
+
+    function draw() {
+      background(0);
+      image(flippedVideo, 0, 0);
+    }
+
+    function classifyVideo() {
+      flippedVideo = ml5.flipImage(video);
+      classifier.classify(flippedVideo, gotResult);
+      flippedVideo.remove();
+    }
+
+    function gotResult(error, _results) {
+      if (error) {
+        console.error(error);
+        return;
+      }
+      results = _results.slice(0, 3);
+      updateBars();
+      classifyVideo();
+    }
+
+    function updateBars() {
+      let barsContainer = document.getElementById('bars-container');
+      barsContainer.innerHTML = '';
+      results.forEach(result => {
+        let barWrapper = document.createElement('div');
+        barWrapper.style.margin = '5px 0';
+        
+        let label = document.createElement('p');
+        label.innerText = `${result.label} (${(result.confidence * 100).toFixed(1)}%)`;
+        label.style.margin = '0';
+        label.style.textAlign = 'center';
+        
+        let bar = document.createElement('div');
+        bar.style.height = '10px';
+        bar.style.width = `${result.confidence * 100}%`;
+        bar.style.backgroundColor = 'green';
+        
+        let barContainer = document.createElement('div');
+        barContainer.style.width = '100%';
+        barContainer.style.height = '10px';
+        barContainer.style.backgroundColor = '#ddd';
+        barContainer.appendChild(bar);
+        
+        barWrapper.appendChild(label);
+        barWrapper.appendChild(barContainer);
+        barsContainer.appendChild(barWrapper);
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>Teachable Machine Image Model - p5.js and ml5.js</h1>
+  <div id="canvas-container"></div>
+  <div id="bars-container" style="width: 320px; margin-top: 10px;"></div>
+</body>
+</html>
